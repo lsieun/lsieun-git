@@ -11,6 +11,11 @@ public class ByteUtils {
     }
 
     public static int findFistNUL(byte[] bytes, int startIndex) {
+        return findFist(bytes, startIndex, 0);
+    }
+
+    public static int findFist(byte[] bytes, int startIndex, int val) {
+        byte target = (byte) val;
         if (bytes == null) return NOT_EXIST;
         int length = bytes.length;
         if (length < 1) return NOT_EXIST;
@@ -18,7 +23,7 @@ public class ByteUtils {
 
         for (int i = startIndex; i < length; i++) {
             byte b = bytes[i];
-            if (b == 0) {
+            if (b == target) {
                 return i;
             }
         }
