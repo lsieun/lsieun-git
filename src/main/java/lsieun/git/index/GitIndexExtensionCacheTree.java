@@ -9,17 +9,21 @@ import java.util.Arrays;
 import java.util.Formatter;
 import java.util.List;
 
-public class GitIndexExtensionTree extends GitIndexExtension {
-    public final List<GitIndexExtensionTreeEntry> entryList = new ArrayList<>();
+public class GitIndexExtensionCacheTree extends GitIndexExtension {
+    public final List<GitIndexExtensionCacheTreeEntry> entryList = new ArrayList<>();
 
-    public GitIndexExtensionTree(GitIndexExtension parent) {
+    public GitIndexExtensionCacheTree(GitIndexExtension parent) {
         this.signature_type = parent.signature_type;
         this.extension_data_bytes = parent.extension_data_bytes;
     }
 
-    public static GitIndexExtensionTree fromByteArray(byte[] bytes) {
+    public static GitIndexExtensionCacheTree fromByteArray(byte[] bytes) {
         GitIndexExtension parent = GitIndexExtension.fromByteArray(bytes);
-        GitIndexExtensionTree extension = new GitIndexExtensionTree(parent);
+        return fromParent(parent);
+    }
+
+    public static GitIndexExtensionCacheTree fromParent(GitIndexExtension parent) {
+        GitIndexExtensionCacheTree extension = new GitIndexExtensionCacheTree(parent);
 
         byte[] extension_data_bytes = extension.extension_data_bytes;
         int length = extension_data_bytes.length;
@@ -51,8 +55,8 @@ public class GitIndexExtensionTree extends GitIndexExtension {
             }
 
             // construct an entry
-            GitIndexExtensionTreeEntry entry = new GitIndexExtensionTreeEntry();
-            entry.name = name;
+            GitIndexExtensionCacheTreeEntry entry = new GitIndexExtensionCacheTreeEntry();
+            entry.path_name = name;
             entry.entry_count = entry_count;
             entry.subtrees_num = subtrees_num;
             entry.object_name = object_name;
@@ -70,10 +74,10 @@ public class GitIndexExtensionTree extends GitIndexExtension {
         StringBuilder sb = new StringBuilder();
         Formatter fm = new Formatter(sb);
         fm.format("Extension {%n");
-        fm.format("    TREE%n");
-        for (GitIndexExtensionTreeEntry entry : entryList) {
+        fm.format("    %s%n", signature_type);
+        for (GitIndexExtensionCacheTreeEntry entry : entryList) {
             fm.format("    name = %s, entry_count = %d, subtrees_num = %d, object_name = %s%n",
-                    entry.name, entry.entry_count, entry.subtrees_num, entry.object_name);
+                    entry.path_name, entry.entry_count, entry.subtrees_num, entry.object_name);
         }
         fm.format("}");
         return sb.toString();

@@ -31,6 +31,7 @@ public class ArchiveUtils {
 
     public static byte[] deflate(byte[] input) {
         Deflater deflater = new Deflater();
+        deflater.setLevel(Deflater.BEST_SPEED);
         deflater.setInput(input);
         deflater.finish();
         ByteArrayOutputStream bao = new ByteArrayOutputStream();

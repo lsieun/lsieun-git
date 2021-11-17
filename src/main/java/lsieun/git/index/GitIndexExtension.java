@@ -1,9 +1,11 @@
 package lsieun.git.index;
 
 import lsieun.utils.ByteUtils;
+import lsieun.utils.HexUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Formatter;
 
 public class GitIndexExtension {
     public GitIndexExtensionType signature_type;
@@ -31,5 +33,15 @@ public class GitIndexExtension {
 
 
         return extension;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Formatter fm = new Formatter(sb);
+        fm.format("Extension {%n");
+        fm.format("    %s%n", signature_type);
+        fm.format("}");
+        return sb.toString();
     }
 }

@@ -20,7 +20,7 @@ public class GitIndex {
     public final List<GitIndexEntry> entryList = new ArrayList<>();
 
     // Extensions
-    public GitIndexExtension extension;
+    public final List<GitIndexExtension> extensionList = new ArrayList<>();
 
     // Hash checksum
     public String hash_checksum;
@@ -56,13 +56,34 @@ public class GitIndex {
         }
 
         // Extension
-        byte[] extension_bytes = Arrays.copyOfRange(bytes, from, bytes.length - 20);
-        GitIndexExtensionTree extension = GitIndexExtensionTree.fromByteArray(extension_bytes);
+        int checksum_index = bytes.length - 20;
+        List<GitIndexExtension> extensionList = new ArrayList<>();
+        while (from < checksum_index) {
+            byte[] extension_size_bytes = Arrays.copyOfRange(bytes, from + 4, from + 8);
+            int extension_size = ByteUtils.toInt(extension_size_bytes);
+
+            int stop = from + 8 + extension_size;
+
+            byte[] extension_bytes = Arrays.copyOfRange(bytes, from, stop);
+            GitIndexExtension extension = GitIndexExtension.fromByteArray(extension_bytes);
+            if (extension.signature_type == GitIndexExtensionType.TREE) {
+                extension = GitIndexExtensionCacheTree.fromParent(extension);
+            }
+            else if (extension.signature_type == GitIndexExtensionType.REUC) {
+                extension = GitIndexExtensionResolveUndo.fromParent(extension);
+            }
+            else {
+                throw new RuntimeException("not supported yet");
+            }
+            extensionList.add(extension);
+
+            from = stop;
+        }
 
         // Hash Checksum
-        byte[] previous_bytes = Arrays.copyOfRange(bytes, 0, bytes.length - 20);
+        byte[] previous_bytes = Arrays.copyOfRange(bytes, 0, checksum_index);
         byte[] actual_checksum_bytes = HashUtils.sha1(previous_bytes);
-        byte[] hash_checksum_bytes = Arrays.copyOfRange(bytes, bytes.length - 20, bytes.length);
+        byte[] hash_checksum_bytes = Arrays.copyOfRange(bytes, checksum_index, bytes.length);
         if (!Arrays.equals(actual_checksum_bytes, hash_checksum_bytes)) {
             throw new RuntimeException("hash checksum is not correct");
         }
@@ -73,12 +94,7 @@ public class GitIndex {
         gitIndex.version = version;
         gitIndex.entries_count = entry_count;
         gitIndex.entryList.addAll(entryList);
-        if (extension.signature_type == GitIndexExtensionType.TREE) {
-            gitIndex.extension = GitIndexExtensionTree.fromByteArray(extension_bytes);
-        }
-        else {
-            gitIndex.extension = extension;
-        }
+        gitIndex.extensionList.addAll(extensionList);
         gitIndex.hash_checksum = HexUtils.toHex(hash_checksum_bytes);
 
         return gitIndex;
@@ -94,7 +110,9 @@ public class GitIndex {
         for (GitIndexEntry entry : entryList) {
             fm.format("    %s%n", entry);
         }
-        fm.format("%s%n", extension);
+        for (GitIndexExtension extension : extensionList) {
+            fm.format("%s%n", extension);
+        }
         fm.format("Hash Checksum: %s%n", hash_checksum);
         return sb.toString();
     }
