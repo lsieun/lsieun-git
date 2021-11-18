@@ -54,11 +54,23 @@ public class GitObject {
         }
 
         // 第三步，生成GitObject对象
-        GitObject obj = new GitObject();
-        obj.objectType = GitObjectType.fromString(type_str);
-        obj.content = second_part_bytes;
+        GitObject gitObject = new GitObject();
+        GitObjectType objectType = GitObjectType.fromString(type_str);
+        gitObject.objectType = objectType;
+        gitObject.content = second_part_bytes;
 
-        return obj;
+        switch (objectType) {
+            case BLOB:
+                return GitObjectBlob.fromParent(gitObject);
+            case TREE:
+                return GitObjectTree.fromParent(gitObject);
+            case COMMIT:
+                return GitObjectCommit.fromParent(gitObject);
+            case TAG:
+                return GitObjectTag.fromParent(gitObject);
+            default:
+                return gitObject;
+        }
     }
 
     public static String getId(String item) {

@@ -11,6 +11,10 @@ public class GitObjectBlob extends GitObject {
 
     public static GitObjectBlob fromByteArray(byte[] bytes) {
         GitObject gitObject = GitObject.fromByteArray(bytes);
+        return fromParent(gitObject);
+    }
+
+    public static GitObjectBlob fromParent(GitObject gitObject) {
         return new GitObjectBlob(gitObject);
     }
 }

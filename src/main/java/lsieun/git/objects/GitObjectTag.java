@@ -66,8 +66,11 @@ public class GitObjectTag extends GitObject {
 
     public static GitObjectTag fromByteArray(byte[] bytes) {
         GitObject gitObject = GitObject.fromByteArray(bytes);
-        GitObjectTag tag = new GitObjectTag(gitObject);
+        return fromParent(gitObject);
+    }
 
+    public static GitObjectTag fromParent(GitObject gitObject) {
+        GitObjectTag tag = new GitObjectTag(gitObject);
         byte[] content = tag.content;
 
         String content_str = new String(content, StandardCharsets.UTF_8);

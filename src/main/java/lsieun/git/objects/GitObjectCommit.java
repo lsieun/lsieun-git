@@ -9,11 +9,10 @@ import java.util.List;
 
 public class GitObjectCommit extends GitObject {
     public String tree;
-    // TODO: 这里应该是一个List类型
-    public String parent;
+    public final List<String> parentList = new ArrayList<>();
     public String author;
     public String committer;
-    public List<String> messageList = new ArrayList<>();
+    public final List<String> messageList = new ArrayList<>();
 
     public GitObjectCommit(GitObject gitObject) {
         this.objectType = gitObject.objectType;
@@ -28,7 +27,7 @@ public class GitObjectCommit extends GitObject {
         StringBuilder sb = new StringBuilder();
         Formatter fm = new Formatter(sb);
         fm.format("%s\n", tree);
-        if (parent != null) {
+        for (String parent : parentList) {
             fm.format("%s\n", parent);
         }
         fm.format("%s\n", author);
@@ -57,18 +56,15 @@ public class GitObjectCommit extends GitObject {
         return GitObject.getId(tree);
     }
 
-    public String getParentId() {
-        if (parent == null) return null;
-        return GitObject.getId(parent);
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Formatter fm = new Formatter(sb);
         fm.format("%s %d%n", objectType.getValue(), content.length);
         fm.format("%s%n", tree);
-        fm.format("%s%n", parent != null ? parent : "parent null");
+        for (String parent : parentList) {
+            fm.format("%s%n", parent);
+        }
         fm.format("%s%n", author);
         fm.format("%s%n", committer);
         fm.format("%n");
@@ -80,10 +76,12 @@ public class GitObjectCommit extends GitObject {
         return sb.toString();
     }
 
-
-
     public static GitObjectCommit fromByteArray(byte[] bytes) {
         GitObject gitObject = GitObject.fromByteArray(bytes);
+        return fromParent(gitObject);
+    }
+
+    public static GitObjectCommit fromParent(GitObject gitObject) {
         GitObjectCommit commit = new GitObjectCommit(gitObject);
         byte[] content = commit.content;
 
@@ -96,7 +94,7 @@ public class GitObjectCommit extends GitObject {
                 commit.tree = item;
             }
             else if (item.startsWith("parent")) {
-                commit.parent = item;
+                commit.parentList.add(item);
             }
             else if (item.startsWith("author")) {
                 commit.author = item;

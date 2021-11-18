@@ -21,6 +21,10 @@ public class GitObjectTree extends GitObject {
 
     public static GitObjectTree fromByteArray(byte[] bytes) {
         GitObject gitObject = GitObject.fromByteArray(bytes);
+        return fromParent(gitObject);
+    }
+
+    public static GitObjectTree fromParent(GitObject gitObject) {
         GitObjectTree tree = new GitObjectTree(gitObject);
         byte[] content = tree.content;
 

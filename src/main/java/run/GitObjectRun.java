@@ -6,10 +6,12 @@ import lsieun.utils.ArchiveUtils;
 import lsieun.utils.FileUtils;
 import lsieun.utils.PathManager;
 
+import java.nio.charset.StandardCharsets;
+
 public class GitObjectRun {
     public static void main(String[] args) {
         // 1. get filepath
-        String filepath = PathManager.getObjectPath("0adbcc19863755f9d2a1e4c22714349e215affcd");
+        String filepath = PathManager.getObjectPath("fe850b5dbe6b218d30ab64310143c522fe7cbd68");
         System.out.println(filepath);
 
         // 2. read bytes and inflate it
@@ -19,46 +21,14 @@ public class GitObjectRun {
 
         // 3. parse git object
         GitObject gitObject = GitObject.fromByteArray(inflated_bytes);
-        GitObjectType objectType = gitObject.objectType;
-        switch (objectType) {
-            case BLOB:
-                parseBlob(inflated_bytes);
-                break;
-            case TREE:
-                parseTree(inflated_bytes);
-                break;
-            case COMMIT:
-                parseCommit(inflated_bytes);
-                break;
-            case TAG:
-                parseTag(inflated_bytes);
-                break;
-            default:
-                throw new RuntimeException("unsupported object type: " + objectType);
-        }
-    }
+        System.out.println(gitObject.getSHA1());
+        System.out.println(gitObject);
 
-    public static void parseBlob(byte[] bytes) {
-        GitObjectBlob blob = GitObjectBlob.fromByteArray(bytes);
-        System.out.println(blob.getSHA1());
-        System.out.println(blob);
-    }
-
-    public static void parseTree(byte[] bytes) {
-        GitObjectTree tree = GitObjectTree.fromByteArray(bytes);
-        System.out.println(tree.getSHA1());
-        System.out.println(tree);
-    }
-
-    public static void parseCommit(byte[] bytes) {
-        GitObjectCommit commit = GitObjectCommit.fromByteArray(bytes);
-        System.out.println(commit.getSHA1());
-        System.out.println(commit);
-    }
-
-    public static void parseTag(byte[] bytes) {
-        GitObjectTag tag = GitObjectTag.fromByteArray(bytes);
-        System.out.println(tag.getSHA1());
-        System.out.println(tag);
+        // 4. output
+        String content = gitObject.toString();
+        byte[] content_bytes = content.getBytes(StandardCharsets.UTF_8);
+        String output_filepath = PathManager.getFilePath("git-object.txt");
+        FileUtils.writeBytes(output_filepath, content_bytes);
+        System.out.println("file:///" + output_filepath);
     }
 }
