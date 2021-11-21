@@ -25,10 +25,11 @@ public class FileUtils {
                 bao.write(buf, 0, len);
             }
             return bao.toByteArray();
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             ex.printStackTrace();
         }
-        return null;
+        throw new RuntimeException("something wrong: " + filepath);
     }
 
     public static void writeBytes(String filepath, byte[] bytes) {
@@ -40,7 +41,8 @@ public class FileUtils {
              BufferedOutputStream buff = new BufferedOutputStream(out)) {
             buff.write(bytes);
             buff.flush();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }

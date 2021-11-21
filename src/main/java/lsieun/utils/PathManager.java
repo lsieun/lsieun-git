@@ -44,4 +44,18 @@ public class PathManager {
     public static String getObjectPath(String sha1) {
         return getGitDIR() + File.separator + "objects" + File.separator + sha1.substring(0, 2) + File.separator + sha1.substring(2);
     }
+
+    public static String getPackIndex(String sha1) {
+        String filename = String.format("pack-%s.idx", sha1);
+        return getPack(filename);
+    }
+
+    public static String getPackData(String sha1) {
+        String filename = String.format("pack-%s.pack", sha1);
+        return getPack(filename);
+    }
+
+    public static String getPack(String filename) {
+        return getGitDIR() + File.separator + "objects" + File.separator + "pack" + File.separator + filename;
+    }
 }
