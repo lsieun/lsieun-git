@@ -13,7 +13,7 @@ public class PathManager {
     }
 
     public static String getWorkingDirectory() {
-        String dir_path = System.getProperty("user.dir");
+        String dir_path = "D:\\tmp\\my-git-repo";
 
         // check whether the dir_path exists
         File dirFile = new File(dir_path);

@@ -2,6 +2,7 @@ package lsieun.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -42,6 +43,12 @@ public class ArchiveUtils {
         }
         deflater.end();
         return bao.toByteArray();
+    }
+
+    public static long getCRC32(byte[] data) {
+        CRC32 crc = new CRC32();
+        crc.update(data);
+        return crc.getValue();
     }
 
     public static void main(String[] args) {
